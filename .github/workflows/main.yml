@@ -42,6 +42,6 @@ jobs:
             aws lambda update-function-code --function-name=${{matrix.lambda}} --zip-file=fileb://${{matrix.lambda}}.zip
           else
             echo "Creating lambda"
-            aws lambda create-function --function-name={{matrix.lambda}} --role arn:aws:iam::992382430749:role/s3-full-access --zip-file --zip-file=fileb://${{matrix.lambda}}.zip
+            aws lambda create-function --function-name={{matrix.lambda}} --role arn:aws:iam::992382430749:role/s3-full-access --zip-file=fileb://${{matrix.lambda}}.zip
             aws lambda update-function-configuration --function-name=${{matrix.lambda}} --handler=${{matrix.lambda}}.lambda_handler
           fi
