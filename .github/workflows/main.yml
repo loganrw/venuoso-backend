@@ -34,9 +34,15 @@ jobs:
           aws-region: us-east-1
       - name: Zip Lambda functions
         run: zip -j ${{matrix.lambda}}.zip ./functions/${{matrix.lambda}}/lambda_handler.py
-      - if: ${{ ! aws lambda get-function --function-name=${{matrix.lambda}} }}
-        run: aws lambda create-function --function-name={{matrix.lambda}}
-      - name: Update Handler
-        run: aws lambda update-function-configuration --handler=${{matrix.lambda}}.lambda_handler
+      - name: Create or Update Lambda
+        run: |
+          if aws lambda get-function --function-name=${{matrix.lambda}}; then
+            echo "Lambda exists - changing handler"
+            aws lambda update-function-configuration --handler=${{matrix.lambda}}.lambda_handler
+          else
+            echo "Creating lambda"
+            aws lambda create-function --function-name={{matrix.lambda}}
+            aws lambda update-function-configuration --handler=${{matrix.lambda}}.lambda_handler
+          fi
       - name: Update Lambda Code
         run: aws lambda update-function-code --function-name=${{matrix.lambda}} --zip-file=fileb://${{matrix.lambda}}.zip
