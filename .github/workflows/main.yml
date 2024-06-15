@@ -35,7 +35,8 @@ jobs:
       - name: Zip Lambda functions
         run: zip -j ${{matrix.lambda}}.zip ./functions/${{matrix.lambda}}/lambda_handler.py
       - name: Create Lambda
-        run: if ! aws lambda get-function --function-name=${{matrix.lambda}}; then aws lambda create-function --function-name={{matrix.lambda}} fi
+      - if: ${{ ! aws lambda get-function --function-name=${{matrix.lambda}} }}
+        run: aws lambda create-function --function-name={{matrix.lambda}} fi
       - name: Update Handler
         run: aws lambda update-function-configuration --handler=${{matrix.lambda}}.lambda_handler
       - name: Update Lambda Code
