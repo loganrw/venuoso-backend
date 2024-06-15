@@ -1,20 +1,37 @@
-name: Deploy Dev to S3
-
+name: Lambda Deploy
 on:
   push:
     branches:
-    - master
-
+      - main
 jobs:
-  deploy:
+  get-filenames:
+    runs-on: ubuntu-latest
+    outputs:
+      lambdaArray: ${{ steps.getLambdas.outputs.lambdas }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Get functions filenames
+        id: getLambdas
+        run: |
+          lambdas=$(tree -d -L 1 -J . | jq -j -c '.[0].contents | map(.name)')
+          echo ::set-output name=lambdas::${lambdas}
+  update-code:
+    needs: get-filenames
+    strategy:
+      matrix:
+        lambda: ${{ fromJSON(needs.get-filenames.outputs.lambdaArray) }}
     runs-on: ubuntu-latest
     steps:
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
-
-    - name: Deploy static site to S3 bucket
-      run: aws s3 sync ./dist/ s3://venuoso.io --delete
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Get AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Zip Lambda functions
+        run: zip -j ${{matrix.lambda}}.zip ./functions/${{matrix.lambda}}/${{matrix.lambda}}.py
+      - name: Update Lambdas code
+        run: aws lambda update-function-code --function-name=${{matrix.lambda}} --zip-file=fileb://${{matrix.lambda}}.zip
