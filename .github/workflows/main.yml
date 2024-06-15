@@ -38,11 +38,11 @@ jobs:
         run: |
           if aws lambda get-function --function-name=${{matrix.lambda}}; then
             echo "Lambda exists - changing handler"
-            aws lambda update-function-configuration --handler=${{matrix.lambda}}.lambda_handler
+            aws lambda update-function-configuration --function-name=${{matrix.lambda}} --handler=${{matrix.lambda}}.lambda_handler
           else
             echo "Creating lambda"
             aws lambda create-function --function-name={{matrix.lambda}}
-            aws lambda update-function-configuration --handler=${{matrix.lambda}}.lambda_handler
+            aws lambda update-function-configuration --function-name=${{matrix.lambda}} --handler=${{matrix.lambda}}.lambda_handler
           fi
       - name: Update Lambda Code
         run: aws lambda update-function-code --function-name=${{matrix.lambda}} --zip-file=fileb://${{matrix.lambda}}.zip
