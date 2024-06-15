@@ -34,5 +34,7 @@ jobs:
           aws-region: us-east-1
       - name: Zip Lambda functions
         run: zip -j ${{matrix.lambda}}.zip ./functions/${{matrix.lambda}}/lambda_handler.py
-      - name: Update Lambdas code
+      - name: Update Lambdas
+        run: if ! aws lambda get-function --function-name=${{matrix.lambda}}; then aws lambda create-function --function-name={{matrix.lambda}}
+        run: aws lambda update-function-configuration --handler=${{matrix.lambda}}.lambda_handler
         run: aws lambda update-function-code --function-name=${{matrix.lambda}} --zip-file=fileb://${{matrix.lambda}}.zip
