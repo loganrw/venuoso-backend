@@ -33,7 +33,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       - name: Zip Lambda functions
-        run: zip -j ${{matrix.lambda}}.zip ./functions/${{matrix.lambda}}/lambda_handler.py
+        run: zip -j ${{matrix.lambda}}.zip ./functions/${{matrix.lambda}}/${{matrix.lambda}}.py
       - name: Create or Update Lambda
         run: |
           if aws lambda get-function --function-name=${{matrix.lambda}}; then
