@@ -11,7 +11,7 @@ def lambda_handler(event, context):
     response = client.list_users(
         UserPoolId="us-east-1_Pthgjauzw",
         Limit=10,
-        Filter=f"email={email}",
+        Filter='email = "' + email + '"',
     )
 
     return response
