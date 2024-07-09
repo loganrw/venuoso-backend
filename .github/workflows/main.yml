@@ -44,5 +44,7 @@ jobs:
             aws lambda create-function --function-name=${{matrix.lambda}} --role=arn:aws:iam::992382430749:role/s3-full-access --zip-file=fileb://${{matrix.lambda}}.zip --runtime=python3.12 --layers=arn:aws:lambda:us-east-1:992382430749:layer:boto3:1 --handler=${{matrix.lambda}}.lambda_handler
           fi
       - name: Update Lambda Code
-        run: aws lambda update-function-code --function-name=${{matrix.lambda}} --zip-file=fileb://${{matrix.lambda}}.zip
+        run: |
+          aws lambda update-function-code --function-name=${{matrix.lambda}} --zip-file=fileb://${{matrix.lambda}}.zip
+          aws lambda wait function-updated --function-name=${{matrix.lambda}}
         
