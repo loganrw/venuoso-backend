@@ -14,4 +14,4 @@ def lambda_handler(event, context):
         Filter='email = "' + email + '"',
     )
 
-    return response
+    return json.dumps(response, default=str)
